@@ -1,0 +1,30 @@
+---
+- name: Install Package
+  hosts: localhost
+  connection: local
+  become: true
+  tasks:
+    - name: Copy package.tar.gz file to server
+      copy:
+        src: package.tar.gz
+        dest: /tmp/package.tar.gz
+
+    - name: Extract the package archive
+      unarchive:
+        src: /tmp/package.tar.gz
+        dest: /tmp/package
+
+    - name: Install the package
+      command: |
+        cd /tmp/package
+        ./install.sh
+      args:
+        creates: /usr/local/bin/package   # Assuming the installation creates this file
+
+    - name: Check the version of the installed package
+      command: package --version
+      register: package_version
+
+    - name: Display the package version
+      debug:
+        var: package_version.stdout
